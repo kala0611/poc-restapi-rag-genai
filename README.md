@@ -1,4 +1,4 @@
-# 🚀 RAG GenAI API - The AI Vengers
+# 🚀 RAG GenAI API
 
 ## 📖 Table of Contents
 - [Introduction](#introduction)
