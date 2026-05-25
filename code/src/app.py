@@ -10,6 +10,7 @@ from rag import retrieve_context, generate_response, load_initial_knowledge
 
 # Load environment variables
 load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Configure logging
 logging.basicConfig(
@@ -54,7 +55,7 @@ async def lifespan(app: FastAPI):
     global knowledge_base_loaded
     try:
         logger.info("Loading knowledge base at application startup...")
-        load_initial_knowledge(os.getenv("KB_DATA_FOLDER"))
+        load_initial_knowledge(os.path.join(BASE_DIR,os.getenv("KB_DATA_FOLDER", "data")))
         knowledge_base_loaded = True
         logger.info("Knowledge base loaded successfully!")
     except Exception as e:
@@ -146,7 +147,7 @@ async def reload_knowledge_base():
     global knowledge_base_loaded
     try:
         logger.info("Manually reloading knowledge base...")
-        load_initial_knowledge(os.getenv("KB_DATA_FOLDER", "data"))
+        load_initial_knowledge(os.path.join(BASE_DIR, os.getenv("KB_DATA_FOLDER", "data")))
         knowledge_base_loaded = True
         logger.info("Knowledge base reloaded successfully!")
         return {
@@ -186,9 +187,10 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     
-    app_host = os.getenv("APP_HOST", "0.0.0.0")
-    app_port = int(os.getenv("APP_PORT", "5001"))
-    debug_mode = os.getenv("APP_ENV", "development") == "development"
+    app_host = os.environ.get("APP_HOST", "0.0.0.0")
+    app_port = int(os.environ.get("APP_PORT", "5000"))
+    debug_mode = os.environ.get("APP_ENV", "development") == "development"
+    log_level = os.environ.get("LOG_LEVEL", "info").lower()
     
     logger.info(f"Starting RAG GenAI API on {app_host}:{app_port}")
     
@@ -197,5 +199,5 @@ if __name__ == "__main__":
         host=app_host,
         port=app_port,
         reload=debug_mode,
-        log_level=os.getenv("LOG_LEVEL", "info").lower()
+        log_level=log_level
     )
